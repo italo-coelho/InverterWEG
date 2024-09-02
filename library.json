@@ -1,6 +1,6 @@
 {
     "name": "InverterWEG",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A library to write and read parameters and data on a WEG Inverter using ModBus RTU protocol.",
     "keywords": "Inverter, WEG, ModBus, RTU",
     "repository":
@@ -22,5 +22,12 @@
     [
         "espressif32", 
         "espressif8266"
+    ],
+    "dependencies": 
+    [
+      {
+        "name": "4-20ma/ModbusMaster",
+        "version": "^2.01"
+      }
     ]
   }
