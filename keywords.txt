@@ -1,12 +1,26 @@
-# Syntax Coloring Map for KukaVar
+# Syntax Coloring Map for InverterWEG
 
-KUKA KEYWORD1
+InverterWEG KEYWORD1
 
-connect KEYWORD2
-connected KEYWORD2
-disconnect KEYWORD2
+begin KEYWORD2
 
-setClient KEYWORD2
+enable KEYWORD2
+disable KEYWORD2
 
-read KEYWORD2
-write KEYWORD2
+start KEYWORD2
+stop KEYWORD2
+
+setSpeed KEYWORD2
+direction KEYWORD2
+
+selectRamp KEYWORD2
+configRamp1 KEYWORD2
+configRamp2 KEYWORD2
+
+resetFaults KEYWORD2
+
+current KEYWORD2
+motorSpeed KEYWORD2
+temperature KEYWORD2
+
+setTxInterval KEYWORD2
