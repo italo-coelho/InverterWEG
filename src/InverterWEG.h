@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <ModbusMaster.h>
 
+#include "definitions.h"
+
 /*
     \brief Motor Specifications
     \param efficiency [50.0, 99,9] (%)
@@ -11,8 +13,8 @@
     \param current [0.0, 10,0] (A)
     \param speed [0, 24000] (rpm)
     \param frequency [0, 400] (Hz)
-    \param power [0, 7] (Index - according to VFD Model)
-    \param pw_factor [0.50, 0.99] (PF)
+    \param power [0, N] (Power Index)
+    \param pw_factor [0.50, 0.99] (P.F.)
 */
 struct MotorSpecs
 {
@@ -21,11 +23,10 @@ struct MotorSpecs
     double current;
     unsigned int speed;
     unsigned int frequency;
-    unsigned int power;
+    MotorPW power;
     double pw_factor;
 };
 
-enum CFW100 {HP1_6, HP1_4, HP_3, HP1_2, HP3_4, HP1, HP3_2, HP2};
 
 class InverterWEG
 {
@@ -98,8 +99,6 @@ class InverterWEG
         uint8_t writeMultiReg(uint16_t address, uint16_t qtd);
 
     public:
-        
-
         InverterWEG();
         ~InverterWEG();
         
@@ -122,6 +121,9 @@ class InverterWEG
         bool configRamp2(double accelTime, double decelTime);
 
         bool configMotor(MotorSpecs motor);
+
+        uint16_t readParam(uint16_t param);
+        uint8_t writeParam(uint16_t param, uint16_t value);
         
         bool resetFaults();
 
@@ -130,9 +132,6 @@ class InverterWEG
         double temperature();
 
         void setTxInterval(uint32_t interval);
-
-        
-
 };
 
 #endif //INVERTER_WEG_H

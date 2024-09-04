@@ -159,8 +159,7 @@ bool InverterWEG::direction(bool direct)
 
 /*
     \brief Chose Acceleration and Deceleration Ramp
-    \param ramp 1 -> first ramp
-    \param ramp 2 -> second ramp
+    \param ramp 1st or 2nd
     \return Communication Success
 */
 bool InverterWEG::selectRamp(uint8_t ramp)
@@ -229,13 +228,38 @@ bool InverterWEG::configMotor(MotorSpecs motor)
     _modbus->setTransmitBuffer(2, motor.current * 10);
     _modbus->setTransmitBuffer(3, motor.speed);
     _modbus->setTransmitBuffer(4, motor.frequency);
-    _modbus->setTransmitBuffer(5, motor.power);
+    _modbus->setTransmitBuffer(5, int(motor.power));
 
     uint8_t result = writeMultiReg(kEfficiencyRP, 6);
     if(result != _modbus->ku8MBSuccess)
         return false;
     result = writeHReg(kPwFactorRP, motor.pw_factor * 100);
     return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Read Parameter from the Inverter
+    \param param Parameter Number
+    \return Parameter Value (-1 if failed)
+*/
+uint16_t InverterWEG::readParam(uint16_t param)
+{   
+    uint16_t data = -1;
+    uint8_t result = readHReg(param, 1);
+    if(result == _modbus->ku8MBSuccess)
+        data = _modbus->getResponseBuffer(0);
+    return data;
+}
+
+/*
+    \brief Write Parameter on the Inverter
+    \param param Parameter Number
+    \param value Parameter Value
+    \return Communication Result Byte
+*/
+uint8_t InverterWEG::writeParam(uint16_t param, uint16_t value)
+{
+    return writeHReg(param, value);
 }
 
 /*
