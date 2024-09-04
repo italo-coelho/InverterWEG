@@ -29,4 +29,7 @@ temperature KEYWORD2
 
 configMotor KEYWORD2
 
+readParam KEYWORD2
+writeParam KEYWORD2
+
 setTxInterval KEYWORD2
