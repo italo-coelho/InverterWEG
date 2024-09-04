@@ -5,13 +5,13 @@ uint8_t InverterWEG::_rs485_re = -1;
 
 InverterWEG::InverterWEG()
 {
-    _spin = false;
+    _spin   = false;
     _enable = false;
-    _direct = true;
-    _jog = false;
+    _direct =  true;
+    _jog    = false;
     _remote = false;
-    _ramp2 = false;
-    _reset = false;
+    _ramp2  = false;
+    _reset  = false;
 
     _interval = 3;
 }
@@ -22,6 +22,11 @@ InverterWEG::~InverterWEG()
         delete _modbus;
 }
 
+/*
+    \brief Use this method when the control of DE and RE pins of the Transceiver is not required
+    \param address Inverter Modbus address [1, 255]
+    \param serial Serial interface connected to the Transceiver
+*/
 void InverterWEG::begin(uint8_t address, Stream &serial)
 {
     _rs485_de = -1;
@@ -32,6 +37,32 @@ void InverterWEG::begin(uint8_t address, Stream &serial)
     _modbus->begin(address, serial);
 }
 
+/*
+    \brief Use this method when the control of DE and RE pins of the Transceiver are connected to a single pin of the MCU
+    \param address Inverter Modbus address [1, 255]
+    \param serial Serial interface connected to the Transceiver
+    \param rs486_de_re MCU pin connected to transceiver's RE and DE pins
+*/
+void InverterWEG::begin(uint8_t address, Stream &serial, int rs485_de_re)
+{
+    if(_modbus)
+        delete _modbus;
+    _modbus = new ModbusMaster;
+    _modbus->begin(address, serial);
+    _rs485_de = rs485_de_re;
+    _rs485_re = rs485_de_re;
+    pinMode(_rs485_de, OUTPUT);
+    _modbus->preTransmission(preTX);
+    _modbus->postTransmission(postTX);
+}
+
+/*
+    \brief Use this method when the control of DE and RE pins of the Transceiver are connected to two individual pins of the MCU
+    \param address Inverter Modbus address [1, 255]
+    \param serial Serial interface connected to the Transceiver
+    \param rs486_de MCU pin connected to transceiver's DE pin
+    \param rs486_re MCU pin connected to transceiver's RE pin
+*/
 void InverterWEG::begin(uint8_t address, Stream &serial, int rs485_de, int rs485_re)
 {
     if(_modbus)
@@ -40,10 +71,16 @@ void InverterWEG::begin(uint8_t address, Stream &serial, int rs485_de, int rs485
     _modbus->begin(address, serial);
     _rs485_de = rs485_de;
     _rs485_re = rs485_re;
+    pinMode(_rs485_de, OUTPUT);
+    pinMode(_rs485_re, OUTPUT);
     _modbus->preTransmission(preTX);
     _modbus->postTransmission(postTX);
 }
 
+/*
+    \brief Use this method to pass an Modbus Object responsible for the communication
+    \param modbus Object from ModbusMaster class
+*/
 void InverterWEG::begin(ModbusMaster &modbus)
 {
     if(_modbus)
@@ -181,6 +218,27 @@ bool InverterWEG::resetFaults()
 }
 
 /*
+    \brief Setup Inverter with Motor Parameters
+    \param motor Struct with motor specifications
+    \return Communication Success
+*/
+bool InverterWEG::configMotor(MotorSpecs motor)
+{
+    _modbus->setTransmitBuffer(0, motor.efficiency * 10);
+    _modbus->setTransmitBuffer(1, motor.voltage);
+    _modbus->setTransmitBuffer(2, motor.current * 10);
+    _modbus->setTransmitBuffer(3, motor.speed);
+    _modbus->setTransmitBuffer(4, motor.frequency);
+    _modbus->setTransmitBuffer(5, motor.power);
+
+    uint8_t result = writeMultiReg(kEfficiencyRP, 6);
+    if(result != _modbus->ku8MBSuccess)
+        return false;
+    result = writeHReg(kPwFactorRP, motor.pw_factor * 100);
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
     \brief Read the Motor Current
     \return Current in Amps (returns -1 if failed)
 */
@@ -231,82 +289,64 @@ void InverterWEG::setTxInterval(uint32_t interval)
 
 uint8_t InverterWEG::readHReg(uint16_t address, uint16_t qtd)
 {
-    uint32_t elapsed = 0;
-#ifdef ESP32
-        elapsed = pdTICKS_TO_MS(xTaskGetTickCount() - _then);
-#else //!ESP32
-        elapsed = millis() - _then;
-#endif //ESP32
-
+    uint32_t elapsed = elapsed = time() - _then;
     if(elapsed < _interval)
         delay(_interval - elapsed);
 
     uint8_t result = _modbus->readHoldingRegisters(address, qtd);
     
-#ifdef ESP32
-        _then = xTaskGetTickCount();
-#else //!ESP32
-        _then = millis();
-#endif //ESP32
+    _then = time();
     
     return result;
 }
 
 uint8_t InverterWEG::writeHReg(uint16_t address, uint16_t value)
 {
-    uint32_t elapsed = 0;
-#ifdef ESP32
-        elapsed = pdTICKS_TO_MS(xTaskGetTickCount() - _then);
-#else //!ESP32
-        elapsed = millis() - _then;
-#endif //ESP32
-
+    uint32_t elapsed = elapsed = time() - _then;
     if(elapsed < _interval)
         delay(_interval - elapsed);
 
     uint8_t result = _modbus->writeSingleRegister(address, value);
     
-#ifdef ESP32
-        _then = xTaskGetTickCount();
-#else //!ESP32
-        _then = millis();
-#endif //ESP32
-    
+    _then = time();
+
     return result;
 }
 
 uint8_t InverterWEG::writeMultiReg(uint16_t address, uint16_t qtd)
 {
-    uint32_t elapsed = 0;
-#ifdef ESP32
-        elapsed = pdTICKS_TO_MS(xTaskGetTickCount() - _then);
-#else //!ESP32
-        elapsed = millis() - _then;
-#endif //ESP32
+    uint32_t elapsed = elapsed = time() - _then;
+    if(elapsed < _interval)
+        delay(_interval - elapsed);
 
     if(elapsed < _interval)
         delay(_interval - elapsed);
 
     uint8_t result = _modbus->writeMultipleRegisters(address, qtd);
     
-#ifdef ESP32
-        _then = xTaskGetTickCount();
-#else //!ESP32
-        _then = millis();
-#endif //ESP32
+    _then = time();
     
     return result;
+}
+
+uint32_t InverterWEG::time()
+{
+#ifdef ESP32
+        return pdTICKS_TO_MS(xTaskGetTickCount());
+#else //!ESP32
+        return millis();
+#endif //ESP32
 }
 
 uint16_t InverterWEG::CmdWord()
 {
     uint16_t word = 0;
-    word += _spin * kSpin;
-    word += _enable * kEnable;
-    word += _direct * kDirect;
-    word += _jog * kJog;
-    word += _remote * kRemote;
-    word += _ramp2 * kRamp2;
-    word += _reset * kReset;
+    word += _spin   * kSpinW;
+    word += _enable * kEnableW;
+    word += _direct * kDirectW;
+    word += _jog    * kJogW;
+    word += _remote * kRemoteW;
+    word += _ramp2  * kRamp2W;
+    word += _reset  * kResetW;
     return word;
 }

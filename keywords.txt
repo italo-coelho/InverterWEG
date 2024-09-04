@@ -2,6 +2,10 @@
 
 InverterWEG KEYWORD1
 
+MotorSpecs KEYWORD1
+
+CFW100 KEYWORD1
+
 begin KEYWORD2
 
 enable KEYWORD2
@@ -22,5 +26,7 @@ resetFaults KEYWORD2
 current KEYWORD2
 motorSpeed KEYWORD2
 temperature KEYWORD2
+
+configMotor KEYWORD2
 
 setTxInterval KEYWORD2

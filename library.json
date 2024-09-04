@@ -1,6 +1,6 @@
 {
     "name": "InverterWEG",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A library to write and read parameters and data on a WEG Inverter using ModBus RTU protocol.",
     "keywords": "Inverter, WEG, ModBus, RTU",
     "repository":
