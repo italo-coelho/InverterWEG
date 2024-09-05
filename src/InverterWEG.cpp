@@ -5,15 +5,7 @@ uint8_t InverterWEG::_rs485_re = -1;
 
 InverterWEG::InverterWEG()
 {
-    _spin   = false;
-    _enable = false;
-    _direct =  true;
-    _jog    = false;
-    _remote = false;
-    _ramp2  = false;
-    _reset  = false;
 
-    _interval = 3;
 }
 
 InverterWEG::~InverterWEG()
@@ -89,13 +81,34 @@ void InverterWEG::begin(ModbusMaster &modbus)
 }
 
 /*
+    \brief Check if the VFD is Connected. 
+    If a command was successful recently, no extra requests will be sent.
+    \return Link Status
+*/
+bool InverterWEG::connected()
+{
+    if(_result == _modbus->ku8MBResponseTimedOut)
+        return false;
+    else
+    {
+        if(time() - _then >= INVERTER_KEEPALIVE)
+        {
+            if(readHReg(316, 1) == _modbus->ku8MBResponseTimedOut)
+                return false;
+            _modbus->clearResponseBuffer();
+        }
+    }
+    return true;
+}
+
+/*
     \brief Enable Inverter
     \return Communication Success
 */
 bool InverterWEG::enable()
 {
     _enable = true;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -106,7 +119,7 @@ bool InverterWEG::enable()
 bool InverterWEG::disable()
 {
     _enable = false;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -117,7 +130,7 @@ bool InverterWEG::disable()
 bool InverterWEG::start()
 {
     _spin = true;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -128,7 +141,7 @@ bool InverterWEG::start()
 bool InverterWEG::stop()
 {
     _spin = false;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -146,14 +159,47 @@ bool InverterWEG::setSpeed(double speed)
 
 /*
     \brief Set Motor Direction
-    \param direct true -> forwards
-    \param direct false -> backwards
+    \param direct true/false -> forwards/backwards
     \return Communication Success
 */
 bool InverterWEG::direction(bool direct)
 {
     _direct = direct;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver JOG Mode
+    \param jog true/false -> enable/disable
+    \return Communication Success
+*/
+bool InverterWEG::jog(bool jog)
+{
+    _jog = jog;
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Minimum Frequency
+    \param min_f [0.0, 300.0] (Hz)
+    \return Communication Success
+*/
+bool InverterWEG::setMinFreq(double min_f)
+{
+    uint8_t result = writeHReg(kMinFreq, min_f * 10);
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Maximum Frequency
+    \param min_f [0.0, 300.0] (Hz)
+    \return Communication Success
+*/
+bool InverterWEG::setMaxFreq(double min_f)
+{
+    uint8_t result = writeHReg(kMaxFreq, min_f * 10);
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -171,7 +217,7 @@ bool InverterWEG::selectRamp(uint8_t ramp)
     else
         return false;
 
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     return result == _modbus->ku8MBSuccess;
 }
 
@@ -210,7 +256,7 @@ bool InverterWEG::configRamp2(double accelTime, double decelTime)
 bool InverterWEG::resetFaults()
 {
     _reset = true;
-    uint8_t result = writeHReg(kCmdP, CmdWord());
+    uint8_t result = writeHReg(kCmdWordP, CmdWord());
     _reset = false;
     return result == _modbus->ku8MBSuccess;
 
@@ -235,6 +281,102 @@ bool InverterWEG::configMotor(MotorSpecs motor)
         return false;
     result = writeHReg(kPwFactorRP, motor.pw_factor * 100);
     return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Fan Control Mode
+    \param mode Fan Mode
+    \return Communication Success
+*/
+bool InverterWEG::setFan(FanMode mode)
+{
+    uint8_t result = writeHReg(kFanControl, int(mode));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver Control Mode
+    \param mode VFD Control Mode
+    \return Communication Success
+*/
+bool InverterWEG::setControlMode(ControlMode mode)
+{
+    uint8_t result = writeHReg(kCntrlMode, int(mode));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver Control Source
+    \param source VFD Control Source
+    \return Communication Success
+*/
+bool InverterWEG::setControlSource(ControlSource source)
+{
+    uint8_t result = writeHReg(kCntrlSource, int(source));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver Reference Speed Source
+    \param source VFD Reference Speed Source
+    \return Communication Success
+*/
+bool InverterWEG::setSpeedSource(SpeedSource source)
+{
+    uint8_t result = writeHReg(kSpeedSource, int(source));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver Enable Start/Stop Source
+    \param source VFD Enable Source
+    \return Communication Success
+*/
+bool InverterWEG::setEnableSource(EnableSource source)
+{
+    uint8_t result = writeHReg(kEnableSource, int(source));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Driver JOG Source
+    \param source VFD JOG Command Source
+    \return Communication Success
+*/
+bool InverterWEG::setJogSource(JogSource source)
+{
+    uint8_t result = writeHReg(kJogSource, int(source));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Set Digital Input Function
+    \param input DIx [1,8]
+    \param function Input Function/Mode
+    \return Communication Success
+*/
+bool InverterWEG::setInputFunction(uint8_t input, InputFn function)
+{
+    input -= 1;
+    if(input > 7)
+        return false;
+    
+    uint8_t result = writeHReg(kDigIn1Mode + (input), int(function));
+    return result == _modbus->ku8MBSuccess;
+}
+
+/*
+    \brief Setup All Inverter Parameters Required for Full Modbus Control
+    \return Communication Success
+*/
+bool InverterWEG::setupModbusRemote()
+{
+    if(!setControlSource(ControlSource::REMOTE)) return false;
+    if(!setSpeedSource(SpeedSource::SERIAL_USB)) return false;
+    if(!setEnableSource(EnableSource::SERIAL_USB)) return false;
+    if(!setJogSource(JogSource::SERIAL_USB)) return false;
+
+    return true;
 }
 
 /*
@@ -320,7 +462,7 @@ uint8_t InverterWEG::readHReg(uint16_t address, uint16_t qtd)
     uint8_t result = _modbus->readHoldingRegisters(address, qtd);
     
     _then = time();
-    
+    _result = result;
     return result;
 }
 
@@ -333,7 +475,7 @@ uint8_t InverterWEG::writeHReg(uint16_t address, uint16_t value)
     uint8_t result = _modbus->writeSingleRegister(address, value);
     
     _then = time();
-
+    _result = result;
     return result;
 }
 
@@ -349,7 +491,7 @@ uint8_t InverterWEG::writeMultiReg(uint16_t address, uint16_t qtd)
     uint8_t result = _modbus->writeMultipleRegisters(address, qtd);
     
     _then = time();
-    
+    _result = result;
     return result;
 }
 

@@ -1,6 +1,65 @@
 #ifndef DEFINITIONS_WEG_H
 #define DEFINITIONS_WEG_H
 
+#define INVERTER_KEEPALIVE 1000
+
+enum class FanMode {
+                      OFF,  //Always OFF
+                      ON,   //Always ON
+                      AUTO  //According to Temperature
+                    };
+
+enum class ControlMode {
+                            VF = 0,  //Linear
+                            VVW = 5  //Vector
+                        };
+
+enum class ControlSource {
+                            LOCAL = 0,      //Always Local
+                            REMOTE = 1,     //Always Remote
+                            DIG_IN = 4,     //Digital Input
+                            SERIAL_LOC = 5, //Serial/USB (Local)
+                            SERIAL_REM = 6, //Serial/USB (Remote)
+                            SOFT_PLC = 11   //SoftPLC
+                          };
+
+enum class SpeedSource {
+                            HMI = 0,        //HMI Buttons
+                            AI1 = 1,        //Analog In1
+                            MULTISPEED = 8, //Multispeed
+                            SERIAL_USB = 9, //Serial/USB
+                            SOFT_PLC = 12   //SoftPLC
+                          };
+
+enum class EnableSource {
+                            HMI = 0,        //HMI Buttons
+                            DIx = 1,        //Digital Input
+                            SERIAL_USB = 2, //Serial/USB
+                            SOFT_PLC = 5    //SoftPLC
+                          };
+
+enum class JogSource    {
+                            NONE = 0,       //Inactive
+                            DIx = 2,        //Digital Input
+                            SERIAL_USB = 3, //Serial/USB
+                            SOFT_PLC = 6    //SoftPLC
+                          };
+
+enum class InputFn {
+                        NONE = 0,
+                        START_STOP = 1,
+                        ENABLE = 2,
+                        E_STOP = 3,
+                        FORWARD = 4,
+                        BACKWARD = 5,
+                        ON = 6,
+                        OFF = 7,
+                        JOG = 10,
+                        MULTISPEED = 13,
+                        RAMP_2 = 14,
+                        RESET = 20,
+                    };
+
 /*
     These values for P404 are known to work with CFW100, CFW300 and CFW500. 
     Do NOT try to set a motor power higher than the one the inverter is rated for.

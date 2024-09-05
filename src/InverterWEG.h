@@ -10,7 +10,7 @@
     \brief Motor Specifications
     \param efficiency [50.0, 99,9] (%)
     \param voltage [0, 240] (V)
-    \param current [0.0, 10,0] (A)
+    \param current [0.0, 10,0] (A)e
     \param speed [0, 24000] (rpm)
     \param frequency [0, 400] (Hz)
     \param power [0, N] (Power Index)
@@ -37,13 +37,13 @@ class InverterWEG
         uint8_t _address;
         uint16_t _cmd_word;
 
-        bool _spin;
-        bool _enable;
-        bool _direct;
-        bool _jog;
-        bool _remote;
-        bool _ramp2;
-        bool _reset;
+        bool _spin   = false;
+        bool _enable = false;
+        bool _direct =  true;
+        bool _jog    = false;
+        bool _remote = false;
+        bool _ramp2  = false;
+        bool _reset  = false;
 
         //WEG Control Word Definitions
         static const uint16_t kSpinW    =        0b1;
@@ -55,15 +55,25 @@ class InverterWEG
         static const uint16_t kResetW   = 0b10000000;
 
         //WEG Parameters
-        static const uint16_t kCmdP         = 682;
+        static const uint16_t kCmdWordP     = 682;
         static const uint16_t kRefSpeedP    = 683;
         static const uint16_t kMotorSpeedP  =   2;
         static const uint16_t kCurrentP     =   3;
         static const uint16_t kInvTempP     =  30;
+        static const uint16_t kMinFreq      = 133;
+        static const uint16_t kMaxFreq      = 134;
         static const uint16_t kAccel1P      = 100;
         static const uint16_t kDecel1P      = 101;
         static const uint16_t kAccel2P      = 102;
         static const uint16_t kDecel2P      = 103;
+        static const uint16_t kCntrlMode    = 202;
+        static const uint16_t kCntrlSource  = 220;
+        static const uint16_t kSpeedSource  = 222;
+        static const uint16_t kEnableSource = 227;
+        static const uint16_t kJogSource    = 228;
+        static const uint16_t kDigIn1Mode   = 263;
+        static const uint16_t kFanControl   = 352;
+        //WEG Motor Specs Parameters
         static const uint16_t kEfficiencyRP = 399;
         static const uint16_t kVoltageRP    = 400;
         static const uint16_t kCurrentRP    = 401;
@@ -71,8 +81,6 @@ class InverterWEG
         static const uint16_t kFrequencyRP  = 403;
         static const uint16_t kPowerRP      = 404;
         static const uint16_t kPwFactorRP   = 407;
-
-        static const double kPowerIndex[8];
 
         uint16_t CmdWord();
 
@@ -90,7 +98,9 @@ class InverterWEG
         }
 
         uint32_t _then;
-        uint32_t _interval;
+        uint32_t _interval = 3;
+
+        uint8_t _result = _modbus->ku8MBResponseTimedOut;
 
         uint32_t time();
 
@@ -107,26 +117,43 @@ class InverterWEG
         void begin(uint8_t address, Stream &serial, int rs485_de_re);
         void begin(uint8_t address, Stream &serial, int rs485_de, int rs485_re);
 
+        bool connected();
+
         bool enable();
         bool disable();
 
         bool start();
         bool stop();
-
+        
+        bool jog(bool jog);
         bool setSpeed(double speed);
         bool direction(bool direct);
         
+        bool setMinFreq(double min_f);
+        bool setMaxFreq(double max_f);
         bool selectRamp(uint8_t ramp);
         bool configRamp1(double accelTime, double decelTime);
         bool configRamp2(double accelTime, double decelTime);
 
         bool configMotor(MotorSpecs motor);
 
+        bool setControlMode(ControlMode mode);
+        bool setInputFunction(uint8_t input, InputFn function);
+
+        bool setJogSource(JogSource source);
+        bool setSpeedSource(SpeedSource source);
+        bool setEnableSource(EnableSource source);
+        bool setControlSource(ControlSource source);
+
+        bool setupModbusRemote();
+
         uint16_t readParam(uint16_t param);
         uint8_t writeParam(uint16_t param, uint16_t value);
         
         bool resetFaults();
 
+        bool setFan(FanMode mode);
+        
         double current();
         double motorSpeed();
         double temperature();

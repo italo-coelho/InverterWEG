@@ -2,11 +2,21 @@
 
 InverterWEG KEYWORD1
 
+FanMode KEYWORD1
+ControlMode KEYWORD1
+ControlSource KEYWORD1
+SpeedSource KEYWORD1
+EnableSource KEYWORD1
+JogSource KEYWORD1
+InputFn KEYWORD1
+MotorPW KEYWORD1
+
 MotorSpecs KEYWORD1
 
 CFW100 KEYWORD1
 
 begin KEYWORD2
+connected KEYWORD2
 
 enable KEYWORD2
 disable KEYWORD2
@@ -14,9 +24,12 @@ disable KEYWORD2
 start KEYWORD2
 stop KEYWORD2
 
+jog KEYWORD2
 setSpeed KEYWORD2
 direction KEYWORD2
 
+setMinFreq KEYWORD2
+setMaxFreq KEYWORD2
 selectRamp KEYWORD2
 configRamp1 KEYWORD2
 configRamp2 KEYWORD2
@@ -28,6 +41,16 @@ motorSpeed KEYWORD2
 temperature KEYWORD2
 
 configMotor KEYWORD2
+
+setControlMode KEYWORD2
+setInputFunction KEYWORD2
+
+setJogSource KEYWORD2
+setSpeedSource KEYWORD2
+setEnableSource KEYWORD2
+setControlSource KEYWORD2
+
+setFan KEYWORD2
 
 readParam KEYWORD2
 writeParam KEYWORD2
