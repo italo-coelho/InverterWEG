@@ -1,3 +1,39 @@
+/*
+  This file is part of the InverterWEG library.
+  Copyright (c) 2024 Ítalo Coelho. All rights reserved.
+  
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
+ *      _____                     _              __          ________ _____ 
+ *     |_   _|                   | |             \ \        / /  ____/ ____|
+ *       | |  _ ____   _____ _ __| |_ ___ _ __    \ \  /\  / /| |__ | |  __ 
+ *       | | | '_ \ \ / / _ \ '__| __/ _ \ '__|    \ \/  \/ / |  __|| | |_ |
+ *      _| |_| | | \ V /  __/ |  | ||  __/ |        \  /\  /  | |___| |__| |
+ *     |_____|_| |_|\_/ \___|_|   \__\___|_|         \/  \/   |______\_____|
+ *
+ *     This library provides a simple way to set the most relevant parameters
+ *  on WEG inverters for configuration and operation. The Modbus RTU protocol
+ *  is used for communication, and the MCU should be connected to the VFD via
+ *  RS485 interface.
+ * 
+ *  Ítalo Coelho
+ *          2024
+ */
+
 #ifndef INVERTER_WEG_H
 #define INVERTER_WEG_H
 

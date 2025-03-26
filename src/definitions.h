@@ -1,7 +1,26 @@
+/*
+  This file is part of the InverterWEG library.
+  Copyright (c) 2024 Ítalo Coelho. All rights reserved.
+  
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #ifndef DEFINITIONS_WEG_H
 #define DEFINITIONS_WEG_H
 
-#define INVERTER_KEEPALIVE 1000
+#define INVERTER_KEEPALIVE 100
 
 enum class FanMode {
                       OFF,  //Always OFF
@@ -72,9 +91,9 @@ enum class MotorPW {
                         HP1_2,  //0.50 HP
                         HP3_4,  //0.74 HP 
                         HP1,    //1.00 HP
-                        //CFW300
                         HP3_2,  //1.50 HP
                         HP2,    //2.00 HP
+                        //CFW300
                         HP3,    //3.00 HP
                         HP4,    //4.00 HP
                         HP5,    //5.00 HP
