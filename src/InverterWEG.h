@@ -38,7 +38,7 @@
 #define INVERTER_WEG_H
 
 #include <Arduino.h>
-#include <ModbusMaster.h>
+#include "ModbusMaster.h"
 
 #include "definitions.h"
 
