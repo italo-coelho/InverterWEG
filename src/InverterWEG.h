@@ -161,9 +161,9 @@ class InverterWEG
         bool start();
         bool stop();
         
-        bool jog(bool jog);
+        bool setJog(bool jog);
         bool setSpeed(double speed);
-        bool direction(bool direct);
+        bool setDirection(bool direct);
         
         bool setMinFreq(double min_f);
         bool setMaxFreq(double max_f);

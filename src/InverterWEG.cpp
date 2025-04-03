@@ -181,7 +181,7 @@ bool InverterWEG::setSpeed(double speed)
     \param direct true/false -> forwards/backwards
     \return Communication Success
 */
-bool InverterWEG::direction(bool direct)
+bool InverterWEG::setDirection(bool direct)
 {
     _direct = direct;
     uint8_t result = writeHReg(kCmdWordP, CmdWord());
@@ -193,7 +193,7 @@ bool InverterWEG::direction(bool direct)
     \param jog true/false -> enable/disable
     \return Communication Success
 */
-bool InverterWEG::jog(bool jog)
+bool InverterWEG::setJog(bool jog)
 {
     _jog = jog;
     uint8_t result = writeHReg(kCmdWordP, CmdWord());
