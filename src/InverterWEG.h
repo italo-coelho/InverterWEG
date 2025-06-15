@@ -46,7 +46,7 @@
     \brief Motor Specifications
     \param efficiency [50.0, 99,9] (%)
     \param voltage [0, 240] (V)
-    \param current [0.0, 10,0] (A)e
+    \param current [0.0, 10,0] (A)
     \param speed [0, 24000] (rpm)
     \param frequency [0, 400] (Hz)
     \param power [0, N] (Power Index)
